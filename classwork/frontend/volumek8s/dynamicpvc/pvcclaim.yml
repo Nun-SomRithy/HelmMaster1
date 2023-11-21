@@ -1,0 +1,75 @@
+# create pvc relies on dynamic pv 
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc
+spec: 
+  storageClassName: nfs-client 
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+# create a deployment 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-app
+  template:
+    metadata: 
+      labels:
+        app: spring-app
+    spec:
+      containers: 
+        - name: spring-container 
+          image: 69966/springgradleimg:1.1.1
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: nfs-volume 
+              mountPath: /app/src/main/resources/images
+      volumes:
+        - name: nfs-volume
+          persistentVolumeClaim:
+            claimName: nfs-pvc
+---
+# create a service
+apiVersion: v1 
+kind: Service 
+metadata:
+  name: nfs-service
+spec:
+  type: ClusterIP
+  selector:
+    app: spring-app
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+
+--- 
+# create ingress for accessing the service 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nfs-ingress
+spec: 
+  rules:
+  - host: nfs.kuberthy.me
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: nfs-service
+              port:
+                number: 8080

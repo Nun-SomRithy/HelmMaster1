@@ -1,0 +1,20 @@
+# appName: reactjs #{{.Values.appName}}
+# image: nunsomrithy/react-thy-img   #{{.Values.image}} 
+# tag: v1   #{{.Values.tag}} 
+# containerPort: 80   #{{.Values.containerPort}} 
+# domain: reactjs.kuberthy.me #{{.Values.domain}} 
+
+appName: postgres
+name: postgres
+image: postgres
+tag: latest
+containerPort: 5432
+env:
+  - name: POSTGRES_PASSWORD
+    value: "123"
+  - name: POSTGRES_DB
+    value: "test"
+  - name: POSTGRES_USER
+    value: "dara"
+
+

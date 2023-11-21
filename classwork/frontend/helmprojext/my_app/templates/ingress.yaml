@@ -1,0 +1,25 @@
+---
+# create ingress for spring svc 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: spring-ingress
+  annotations:
+    kubernetes.io/ingressClassName: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt"
+spec:
+  tls:
+  - hosts:
+      - spring.kuberthy.me
+    secretName: spring-tls2
+  rules:
+    - host: spring.kuberthy.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: spring-svc
+                port:
+                  number: 8080

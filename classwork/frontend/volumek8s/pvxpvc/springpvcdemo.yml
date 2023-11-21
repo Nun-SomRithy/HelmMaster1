@@ -1,0 +1,74 @@
+# create PV
+---
+apiVersion: v1 
+kind: PersistentVolume
+metadata:
+  name: spring-pv 
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-sharing
+  nfs:
+    path: /opt/nfs/data
+    server: 10.184.0.4
+---
+#create PVC 
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spring-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: nfs-sharing
+---
+# create deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-deployment
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      name: spring-app
+  template:
+    metadata:
+      labels:
+        name: spring-app
+    spec:
+      containers: 
+        - name: spring-app-cont 
+          image: 69966/springgradleimg:1.1.1
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: my-vol 
+              mountPath: /app/src/main/resources/images
+      volumes:
+        - name: my-vol
+          persistentVolumeClaim:
+            claimName: spring-pvc
+---  
+# create spring svc 
+apiVersion: v1
+kind: Service 
+metadata:
+  name: spring-svc
+spec:
+  type: ClusterIP 
+  selector:
+    name: spring-app
+  ports:
+    - port: 8080
+      targetPort: 8080

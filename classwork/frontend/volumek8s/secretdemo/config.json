@@ -1,0 +1,10 @@
+{
+    "auths": {
+      "nd.begoingdev.me": {
+        "username": "docker-repo",
+        "password": "123",
+        "email": "docker@gmail.com",
+        "auth": "ZG9ja2VyLXJlcG86MTIz"
+      }
+    }
+   }

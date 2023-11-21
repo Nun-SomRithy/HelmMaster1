@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: nginx-deployment
+spec: 
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-app
+  template: 
+    metadata: 
+      labels: 
+        app: nginx-app
+    spec: 
+      containers : 
+        - name: nginx-cont 
+          image: nginx:latest
+          ports: 
+            - containerPort: 80
+          volumeMounts:
+            - name: my-vol
+              mountPath: /data # path inside container
+      volumes: 
+        - name: my-vol
+          hostPath: 
+            path: /home/chirifu_jumi/volumedemo/data

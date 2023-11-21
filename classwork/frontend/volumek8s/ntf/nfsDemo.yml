@@ -1,0 +1,59 @@
+---
+apiVersion: apps/v1
+kind: Deployment 
+metadata: 
+  name: spring-deployment 
+spec:
+  replicas: 3
+  selector: 
+    matchLabels: 
+      app: spring-app
+  template:
+    metadata: 
+      labels: 
+        app: spring-app
+    spec:
+      containers:
+        - name: spring-cont
+          image: 69966/springgradleimg:1.1.1
+          ports: 
+            - containerPort: 8080
+          volumeMounts:
+            - name: spring-vol
+              mountPath: /app/src/main/resources/images
+      volumes:
+        - name: spring-vol
+          nfs: 
+            server: 10.184.0.4
+            path: /opt/nfs/data
+--- 
+apiVersion: v1
+kind: Service
+metadata: 
+  name: spring-svc 
+spec:
+  type: ClusterIP
+  selector: 
+    app: spring-app
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+--- 
+#Create ingress in order access the applications 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: 
+  name: spring-ingress
+spec:
+  rules: 
+    - host: nfs.kuberthy.me
+      http:
+        paths: 
+          - path: /
+            pathType: Prefix
+            backend: 
+              service: 
+                name: spring-svc
+                port: 
+                  number: 8080

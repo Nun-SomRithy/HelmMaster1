@@ -1,0 +1,2 @@
+#use the tpl/deployment.tpl in this yml file
+{{ template "deployment.tpl" .}}

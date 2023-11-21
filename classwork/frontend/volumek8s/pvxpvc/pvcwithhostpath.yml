@@ -1,0 +1,72 @@
+# create PV
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: spring-hostpath-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  storageClassName: hostpath-sharing
+  hostPath:
+    path: /opt/hostpath
+---
+# create PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spring-hostpath-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: hostpath-sharing
+---
+# create deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-deployment
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      name: spring-app
+  template:
+    metadata:
+      labels:
+        name: spring-app
+    spec:
+      containers: 
+        - name: spring-app-cont 
+          image: 69966/springgradleimg:1.1.1
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: my-new-vol 
+              mountPath: /app/src/main/resources/images
+      volumes:
+        - name: my-new-vol
+          persistentVolumeClaim:
+            claimName: spring-hostpath-pvc 
+---  
+# create spring svc 
+apiVersion: v1
+kind: Service 
+metadata:
+  name: spring-svc
+spec:
+  type:  
+  selector:
+    name: spring-app
+  ports:
+    - port: 8080
+      targetPort: 8080

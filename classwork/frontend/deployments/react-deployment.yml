@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: reactjs-deployment
+  labels: 
+    app: reactjs-deployment 
+spec: 
+  replicas: 3
+  strategy: 
+    type: RollingUpdate
+    rollingUpdate: 
+      maxSurge: 1
+      maxUnavailable: 1
+  selector: 
+    matchLabels:
+      app: reactjs-lbl
+  template:
+    metadata: 
+      labels:
+        app: reactjs-lbl
+    spec:
+      containers: 
+        - name: reactjs-container 
+          image: nunsomrithy/react-thy-img:v1
+          ports: 
+            - containerPort: 80
+# create service for the deployment 
+---
+apiVersion: v1 
+kind: Service
+metadata: 
+  name: reactjs-svc 
+spec:
+  type: NodePort 
+  selector: 
+    app: reactjs-lbl
+  ports: 
+    - protocol: TCP
+      port: 3000
+      targetPort: 80

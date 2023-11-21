@@ -1,0 +1,24 @@
+# Create ingress for react-app
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{.Values.appName}}-ingress
+  annotations:
+     kubernetes.io/ingressClassName: "nginx"
+     cert-manager.io/cluster-issuer: "letsencrypt"
+spec:
+  tls:
+  - hosts:
+      - {{.Values.appName}}.kuberthy.me
+    secretName: {{.Values.appName}}-tls
+  rules:
+    - host: {{.Values.domain}}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{.Values.appName}}-svc
+                port:
+                  number: {{.Values.containerPort}}
